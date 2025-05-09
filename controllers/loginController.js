@@ -17,9 +17,13 @@ exports.login = async (req, res) => {
       const newUser = new userSchema({
         name,
         email,
-        token: googleRes.tokens.access_token,
+        g_accessToken: googleRes.tokens.access_token,
+        g_refreshToken: googleRes.tokens.refresh_token,
       });
       userDetails = await newUser.save();
+    } else {
+      userDetails.g_accessToken = googleRes.tokens.access_token;
+      userDetails.g_refreshToken = googleRes.tokens.refresh_token;
     }
     const cookies = req.cookies;
     let newRefreshTokenArray = !cookies?.jwt
@@ -90,7 +94,6 @@ exports.logOut = async (req, res) => {
     if (!cookies?.jwt) return res.sendStatus(204);
     const refreshToken = cookies.jwt;
     const foundUser = await userSchema.findOne({ refreshToken });
-    console.log("found user", foundUser);
     res.clearCookie("jwt", {
       httpOnly: true,
       //   sameSite: "None",
@@ -103,6 +106,10 @@ exports.logOut = async (req, res) => {
         (val) => val !== refreshToken
       );
       foundUser.refreshToken = otherUsers;
+      if (otherUsers.length == 0) {
+        foundUser.g_accessToken = null;
+        foundUser.g_refreshToken = null;
+      }
       await foundUser.save();
     }
     return res.sendStatus(204);

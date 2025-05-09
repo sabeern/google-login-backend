@@ -12,11 +12,14 @@ const userSchema = new mongoose.Schema(
       unique: true,
     },
     mobile: String,
-    token: {
+    g_accessToken: {
       type: String,
-      required: true,
+    },
+    g_refreshToken: {
+      type: String,
     },
     refreshToken: [],
+    callSid: String,
   },
   { timestamp: true }
 );
