@@ -1,4 +1,3 @@
-const bcrypt = require("bcrypt");
 const userSchema = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const { oauth2Client } = require("../utils/googleClient");
@@ -76,6 +75,37 @@ exports.handleRefreshToken = async (req, res) => {
         mobile: foundUser?.mobile,
       });
     });
+  } catch (err) {
+    res.status(500).send({ errorMessage: "Internal server error" });
+  }
+};
+
+exports.logOut = async (req, res) => {
+  try {
+    const authHeader = req.headers["authorization"];
+    if (authHeader) {
+      const token = authHeader.split(" ")[1];
+    }
+    const cookies = req.cookies;
+    if (!cookies?.jwt) return res.sendStatus(204);
+    const refreshToken = cookies.jwt;
+    const foundUser = await userSchema.findOne({ refreshToken });
+    console.log("found user", foundUser);
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      //   sameSite: "None",
+      //   secure: true,
+    });
+
+    // Delete refreshToken in db
+    if (foundUser) {
+      const otherUsers = foundUser.refreshToken.filter(
+        (val) => val !== refreshToken
+      );
+      foundUser.refreshToken = otherUsers;
+      await foundUser.save();
+    }
+    return res.sendStatus(204);
   } catch (err) {
     res.status(500).send({ errorMessage: "Internal server error" });
   }

@@ -22,8 +22,10 @@ app.use(
 );
 
 const loginRoute = require("./routes/login");
+const profileRoute = require("./routes/profile");
 
 app.use("/user", loginRoute);
+app.use("/profile", profileRoute);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
