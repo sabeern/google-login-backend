@@ -2,39 +2,38 @@ const { oauth2Client } = require("../utils/googleClient");
 const userSchema = require("../models/userModel");
 const { google } = require("googleapis");
 const schedule = require("node-schedule");
+// Initialize Twilio client using environment variables
 const twilio = require("twilio");
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = twilio(accountSid, authToken);
 
+// Controller to update the user's mobile number.
 exports.updateMobileNumber = async (req, res) => {
   try {
     const { mobile } = req.body;
-
     if (!mobile) {
       return res
         .status(400)
         .send({ errorMessage: "Mobile number is required." });
     }
-
     const user = await userSchema.findByIdAndUpdate(
       req.user,
       { $set: { mobile } },
       { new: true }
     );
-
     if (!user) {
       return res
         .status(400)
         .send({ errorMessage: "User not found or update failed." });
     }
-
     res.send({ mobile });
   } catch (err) {
     res.status(500).send({ errorMessage: "Failed to update mobile." });
   }
 };
 
+// Checks all logged-in users and makes a Twilio call if an upcoming Google Calendar event is found.
 const performLoginUserEventCheck = async () => {
   try {
     const loggingUsers = await userSchema.find({
@@ -61,6 +60,7 @@ const performLoginUserEventCheck = async () => {
   }
 };
 
+// Function to check if the user has a calendar event in the next five minutes.
 const getGoogleCalenderEvents = async (user) => {
   try {
     // return true;
@@ -87,13 +87,14 @@ const getGoogleCalenderEvents = async (user) => {
       const start = new Date(event.start.dateTime || event.start.date);
       return start > now;
     });
-    if (upcomingEvents) return true;
+    if (upcomingEvents.length > 0) return true;
     else return false;
   } catch (err) {
     return false;
   }
 };
 
+// Trigger a Twilio call to the user's mobile number.
 const twilioCall = async (user) => {
   try {
     // return { status: true, sid: 123 };
@@ -108,5 +109,5 @@ const twilioCall = async (user) => {
   }
 };
 
-//sheduler which execute in every five minutes
+// A scheduler that runs every five minutes to check the calendar events of logged-in users and make a call.
 schedule.scheduleJob("*/5 * * * *", performLoginUserEventCheck);

@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 
+// Middleware to verify the access token in the Authorization header before allowing access to protected routes
+
 const verifyJWT = async (req, res, next) => {
   try {
     const authHeader = req.headers["authorization"];

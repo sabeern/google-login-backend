@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+// Function to establish a connection to the MongoDB database and log success or failure messages
+
 async function dbConnection() {
   const connection = mongoose.connection;
   connection.on("connected", () => {
