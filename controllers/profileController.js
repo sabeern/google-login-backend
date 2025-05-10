@@ -109,5 +109,5 @@ const twilioCall = async (user) => {
   }
 };
 
-// A scheduler that runs every five minutes to check the calendar events of logged-in users and make a call.
-schedule.scheduleJob("*/5 * * * *", performLoginUserEventCheck);
+// A scheduler that runs every four minutes to check the calendar events of logged-in users and make a call.
+schedule.scheduleJob("*/4 * * * *", performLoginUserEventCheck);
