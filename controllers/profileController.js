@@ -36,6 +36,7 @@ exports.updateMobileNumber = async (req, res) => {
 // Checks all logged-in users and makes a Twilio call if an upcoming Google Calendar event is found.
 const performLoginUserEventCheck = async () => {
   try {
+    console.log("checking started");
     const loggingUsers = await userSchema.find({
       mobile: { $exists: true, $nin: [null, ""] },
       g_refreshToken: { $exists: true, $nin: [null, ""] },
@@ -64,6 +65,7 @@ const performLoginUserEventCheck = async () => {
 const getGoogleCalenderEvents = async (user) => {
   try {
     // return true;
+    console.log("google event checked");
     oauth2Client.setCredentials({
       access_token: user.g_accessToken,
       refresh_token: user.g_refreshToken,
@@ -97,6 +99,7 @@ const getGoogleCalenderEvents = async (user) => {
 // Trigger a Twilio call to the user's mobile number.
 const twilioCall = async (user) => {
   try {
+    console.log("call function called");
     // return { status: true, sid: 123 };
     const call = await client.calls.create({
       from: process.env.TWILIO_FROM_NUMBER,
@@ -110,4 +113,5 @@ const twilioCall = async (user) => {
 };
 
 // A scheduler that runs every four minutes to check the calendar events of logged-in users and make a call.
-schedule.scheduleJob("*/4 * * * *", performLoginUserEventCheck);
+// schedule.scheduleJob("*/1 * * * *", performLoginUserEventCheck);
+setTimeout(performLoginUserEventCheck, 5000);
