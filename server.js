@@ -26,6 +26,9 @@ const profileRoute = require("./routes/profile");
 
 app.use("/user", loginRoute);
 app.use("/profile", profileRoute);
+app.get("/", (req, res) => {
+  res.send("Hello");
+});
 app.get("/health", (req, res) => {
   res.send("Fine");
 });
