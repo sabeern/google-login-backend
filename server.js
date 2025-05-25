@@ -26,6 +26,9 @@ const profileRoute = require("./routes/profile");
 
 app.use("/user", loginRoute);
 app.use("/profile", profileRoute);
+app.get("/health", (req, res) => {
+  res.send("Fine");
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
